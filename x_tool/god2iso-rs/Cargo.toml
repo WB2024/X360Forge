@@ -1,0 +1,11 @@
+[package]
+name = "god2iso"
+version = "1.0.0"
+description = "Convert Xbox 360 Games on Demand (GOD) packages to ISO — Linux native CLI"
+edition = "2021"
+
+[[bin]]
+name = "god2iso"
+path = "src/main.rs"
+
+[dependencies]

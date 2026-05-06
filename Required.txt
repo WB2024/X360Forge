@@ -1,0 +1,19 @@
+# Python dependencies (install with pip)
+# pip install -r Required.txt
+# (No extra pip packages required — only Python standard library + tkinter)
+
+# System dependencies (install via your package manager):
+#   sudo apt install python3-tk                          # tkinter for GUI
+#   sudo apt install cargo                               # Rust toolchain to build iso2god and god2iso
+#   sudo apt install gcc libcurl4-openssl-dev zlib1g-dev # to build abgx360
+
+# Tools required in x_tool/:
+#   x_tool/extract-xiso  # Linux binary of extract-xiso (must be executable: chmod +x x_tool/extract-xiso)
+#   x_tool/iso2god       # Built from x_tool/iso2god-rs/ with: cargo build --release
+#   x_tool/god2iso       # Built from x_tool/god2iso-rs/ with: cargo build --release
+#   x_tool/abgx360       # Built from x_tool/abgx360-src/ with: ./configure && make
+
+# Build steps (or just run build.sh):
+#   cd x_tool/iso2god-rs  && cargo build --release && cp target/release/iso2god ../iso2god
+#   cd x_tool/god2iso-rs  && cargo build --release && cp target/release/god2iso ../god2iso
+#   cd x_tool/abgx360-src && ./configure && make -j$(nproc) && cp src/abgx360 ../abgx360
