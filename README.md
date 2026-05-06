@@ -164,7 +164,7 @@ Reconstructs an ISO from a Games on Demand package.
 
 | Button | Behaviour |
 |---|---|
-| **Delete Game Folders** | Permanently deletes all folders next to `x_ISO/` that contain `.xex` / `.xbe` files |
+| **Delete Game Folders** | Permanently deletes all folders in the app directory that contain `.xex` / `.xbe` files |
 
 > Both destructive buttons are coloured red and prompt no confirmation — use with care.
 
@@ -180,7 +180,6 @@ X360Forge/
 ├── translations.py       # UI string translations
 ├── build.sh              # Build script (tools + PyInstaller bundle)
 ├── Required.txt          # Dependency notes
-├── x_ISO/                # Drop ISO files here for extraction
 ├── Images/               # App icon
 └── x_tool/
     ├── extract-xiso      # ← built by build.sh
@@ -230,5 +229,4 @@ Install Rust: `sudo apt install cargo` or via [rustup.rs](https://rustup.rs)
 
 ---
 
-Original Windows project: [github.com/BLAHPR/Xbox360-Utility-Create-Extract](https://github.com/BLAHPR/Xbox360-Utility-Create-Extract)  
-Contact: geebob273@gmail.com
+Original Windows project: [github.com/BLAHPR/Xbox360-Utility-Create-Extract](https://github.com/BLAHPR/Xbox360-Utility-Create-Extract)
