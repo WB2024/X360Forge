@@ -1,3 +1,6 @@
+# Developer notes (AI reference, not for distribution)
+DEVNOTES.md
+
 # Python
 __pycache__/
 *.py[cod]
@@ -43,3 +46,4 @@ x_tool/iso2god-rs/target/
 # OS
 .DS_Store
 Thumbs.db
+HowtoMultidiscGames.md
