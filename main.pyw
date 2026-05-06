@@ -84,6 +84,7 @@ class XISOToolApp:
         self.fix_iso_btn.config(text=tr["fix_iso"])
         self.isotogod_btn.config(text=tr["iso2god"])
         self.godtoiso_btn.config(text=tr["god2iso"])
+        self.multidisc_btn.config(text=tr["multidisc"])
         self.help_btn.config(text=tr["help"])
 
     def _btn(self, parent, text, command, bg, hover_bg, fg="#ffffff"):
@@ -176,7 +177,12 @@ class XISOToolApp:
         self.godtoiso_btn = self._btn(
             button_frame, "", self.run_god2iso, self.ACCENT, self.ACCENT_HOV
         )
-        self.godtoiso_btn.pack(fill=tk.X, padx=16, pady=(2, 4))
+        self.godtoiso_btn.pack(fill=tk.X, padx=16, pady=2)
+
+        self.multidisc_btn = self._btn(
+            button_frame, "", self.run_multidisc, self.ACCENT, self.ACCENT_HOV
+        )
+        self.multidisc_btn.pack(fill=tk.X, padx=16, pady=(2, 4))
 
         self._separator(button_frame)
 
@@ -398,6 +404,205 @@ class XISOToolApp:
                 self.update_status("\nDone. ISO written to output folder.")
         except Exception as e:
             self.update_status(f"Failed to run god2iso: {e}")
+
+    # ── Multi-Disc Install ─────────────────────────────────────────────────
+
+    def run_multidisc(self):
+        self.clear_status()
+
+        iso_folder = filedialog.askdirectory(
+            title="Select folder containing both ISO files (install disc and play disc)"
+        )
+        if not iso_folder:
+            self.update_status("Cancelled.")
+            return
+
+        iso_files = sorted([f for f in os.listdir(iso_folder) if f.lower().endswith('.iso')])
+
+        if len(iso_files) < 2:
+            self.update_status(
+                f"ERROR: Found {len(iso_files)} ISO file(s) in the selected folder.\n"
+                "At least 2 ISO files are required (install disc + play disc)."
+            )
+            return
+
+        assignment = self.show_disc_assignment_dialog(iso_files)
+        if assignment is None:
+            self.update_status("Cancelled.")
+            return
+
+        install_iso_name, play_iso_name = assignment
+        install_iso_path = os.path.join(iso_folder, install_iso_name)
+        play_iso_path    = os.path.join(iso_folder, play_iso_name)
+
+        output_dir = filedialog.askdirectory(
+            title="Select output folder (extracted content and GOD files will be written here)"
+        )
+        if not output_dir:
+            self.update_status("Cancelled.")
+            return
+
+        self.update_status(
+            f"Multi-Disc Install\n"
+            f"Install Disc: {install_iso_name}\n"
+            f"Play Disc:    {play_iso_name}\n"
+            f"Output:       {output_dir}\n"
+            f"{'─' * 48}\n"
+        )
+        threading.Thread(
+            target=self.execute_multidisc,
+            args=(install_iso_path, play_iso_path, output_dir)
+        ).start()
+
+    def show_disc_assignment_dialog(self, iso_files):
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Assign Discs")
+        dialog.geometry("480x220")
+        dialog.configure(bg=self.BG)
+        dialog.resizable(False, False)
+        dialog.grab_set()
+        dialog.focus_set()
+
+        result = {"value": None}
+
+        install_var = tk.StringVar(dialog)
+        play_var    = tk.StringVar(dialog)
+        install_var.set(iso_files[0])
+        play_var.set(iso_files[1] if len(iso_files) > 1 else iso_files[0])
+
+        tk.Label(
+            dialog, text="Assign each ISO file to its role.",
+            bg=self.BG, fg=self.TEXT, font=("Helvetica", 11)
+        ).pack(pady=(16, 8))
+
+        grid = tk.Frame(dialog, bg=self.BG)
+        grid.pack(padx=24, fill=tk.X)
+
+        tk.Label(
+            grid, text="Install Disc:", bg=self.BG, fg=self.TEXT,
+            font=("Helvetica", 10, "bold"), anchor="w"
+        ).grid(row=0, column=0, sticky="w", pady=4)
+        install_menu = tk.OptionMenu(grid, install_var, *iso_files)
+        install_menu.config(
+            bg=self.PANEL, fg=self.TEXT, activebackground=self.BORDER,
+            font=("Helvetica", 10), relief=tk.FLAT, bd=0, width=34
+        )
+        install_menu.grid(row=0, column=1, sticky="ew", padx=(8, 0), pady=4)
+
+        tk.Label(
+            grid, text="Play Disc:", bg=self.BG, fg=self.TEXT,
+            font=("Helvetica", 10, "bold"), anchor="w"
+        ).grid(row=1, column=0, sticky="w", pady=4)
+        play_menu = tk.OptionMenu(grid, play_var, *iso_files)
+        play_menu.config(
+            bg=self.PANEL, fg=self.TEXT, activebackground=self.BORDER,
+            font=("Helvetica", 10), relief=tk.FLAT, bd=0, width=34
+        )
+        play_menu.grid(row=1, column=1, sticky="ew", padx=(8, 0), pady=4)
+
+        error_label = tk.Label(dialog, text="", bg=self.BG, fg=self.RED, font=("Helvetica", 9))
+        error_label.pack()
+
+        btn_row = tk.Frame(dialog, bg=self.BG)
+        btn_row.pack(pady=(4, 12))
+
+        def on_cancel():
+            result["value"] = None
+            dialog.destroy()
+
+        def on_proceed():
+            inst = install_var.get()
+            play = play_var.get()
+            if inst == play:
+                error_label.config(text="Install disc and play disc must be different files.")
+                return
+            result["value"] = (inst, play)
+            dialog.destroy()
+
+        self._btn(btn_row, "Cancel", on_cancel, self.RED, self.RED_HOV).pack(side=tk.LEFT, padx=(0, 12))
+        self._btn(btn_row, "Proceed", on_proceed, self.GREEN, self.GREEN_HOV).pack(side=tk.LEFT)
+
+        self.root.wait_window(dialog)
+        return result["value"]
+
+    def execute_multidisc(self, install_iso_path, play_iso_path, output_dir):
+        extract_tool = self.resource_path('x_tool/extract-xiso')
+        god_tool     = self.resource_path('x_tool/iso2god')
+
+        # ── STEP 1: Extract install disc ──────────────────────────────────
+        print("STEP 1/2: Extracting install disc...")
+        print(f"  Source: {os.path.basename(install_iso_path)}\n")
+
+        try:
+            proc = subprocess.Popen(
+                [extract_tool, "-x", install_iso_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                cwd=output_dir
+            )
+            for line in proc.stdout:
+                print(f"  {line.rstrip()}")
+            proc.wait()
+        except Exception as e:
+            print(f"  \u2717 Failed to run extract-xiso: {e}")
+            return
+
+        if proc.returncode != 0:
+            print(f"  \u2717 Extraction failed (extract-xiso exit code {proc.returncode}). Aborting.")
+            return
+
+        install_iso_stem = os.path.splitext(os.path.basename(install_iso_path))[0]
+        extracted_folder = os.path.join(output_dir, install_iso_stem)
+        content_folder   = os.path.join(extracted_folder, "content")
+
+        print(f"\n  \u2713 Install disc extracted.")
+        print(f"  Extracted folder: {extracted_folder}")
+
+        if os.path.isdir(content_folder):
+            print(f"\n  *** CONTENT FOLDER FOUND ***")
+            print(f"  Path: {content_folder}")
+            print(f"  \u2192 Copy this folder to the root of your USB drive,")
+            print(f"    or FTP it to your console's content folder.")
+        else:
+            print(f"\n  Note: No 'content' subfolder found in the extracted disc.")
+            print(f"  Check the extracted folder manually: {extracted_folder}")
+
+        print()
+
+        # ── STEP 2: Convert play disc to GOD ──────────────────────────────
+        print("STEP 2/2: Converting play disc to GOD format...")
+        print(f"  Source: {os.path.basename(play_iso_path)}\n")
+
+        try:
+            proc = subprocess.Popen(
+                [god_tool, play_iso_path, output_dir],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True
+            )
+            for line in proc.stdout:
+                print(f"  {line.rstrip()}")
+            proc.wait()
+        except Exception as e:
+            print(f"  \u2717 Failed to run iso2god: {e}")
+            return
+
+        if proc.returncode != 0:
+            print(f"  \u2717 iso2god failed (exit code {proc.returncode}).")
+            return
+
+        print(f"\n  \u2713 Play disc converted to GOD format.")
+        print(f"  GOD files written to: {output_dir}")
+        print()
+
+        # ── Final summary ──────────────────────────────────────────────────
+        print("\u2500" * 48)
+        print("DONE.\n")
+        print("Next steps:")
+        print("  1. Copy the content/ folder (path shown above) to the root")
+        print("     of your USB drive, or FTP it to your console.")
+        print("  2. Load the GOD files from the output folder onto your console.")
 
     def delete_source_folders(self):
         self.clear_status()

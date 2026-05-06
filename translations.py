@@ -11,6 +11,7 @@ def get_translations():
             "fix_iso": "Fix ISO  \u2014  abgx360",
             "iso2god": "ISO  \u2192  GOD  (Games on Demand)",
             "god2iso": "GOD  \u2192  ISO  (Games on Demand)",
+            "multidisc": "Install Multi-Disc  \u2014  Install Disc / Play Disc",
             "help": "Help / README",
             'help_text': (
                 "X360Forge\n"
@@ -55,6 +56,20 @@ def get_translations():
                 "    Permanently deletes all game folders in the app directory\n"
                 "    that contain .xex/.xbe files.\n"
                 "    This action cannot be undone.\n\n"
+                "══════════════════════════════════════════════\n\n"
+                "7.  Install Multi-Disc (Install Disc / Play Disc)\n\n"
+                "    For games shipped with a separate install disc and play disc.\n\n"
+                "    Click 'Install Multi-Disc \u2014 Install Disc / Play Disc'.\n"
+                "    Select the folder containing both ISO files.\n"
+                "    In the dialog that appears, assign which ISO is the install disc\n"
+                "    and which is the play disc, then click Proceed.\n"
+                "    Select an output folder.\n\n"
+                "    The app will:\n"
+                "      1. Extract the install disc (produces game files + content/ folder)\n"
+                "      2. Convert the play disc to GOD format\n\n"
+                "    When done, copy the content/ folder shown in the status window\n"
+                "    to the root of your USB drive (or FTP it to your console).\n"
+                "    Then load the GOD files from the output folder onto your console.\n\n"
                 "══════════════════════════════════════════════\n\n"
                 "Credits\n\n"
                 "  BLAHPR            Original utility\n"

@@ -95,7 +95,6 @@ pyinstaller \
     --onefile \
     --add-data "x_tool:x_tool" \
     --add-data "Images:Images" \
-    --add-data "x_ISO:x_ISO" \
     --name "X360Forge" \
     main.pyw
 
