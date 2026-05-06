@@ -24,6 +24,22 @@ x_tool/iso2god
 x_tool/god2iso
 x_tool/abgx360
 
+# abgx360-src build artifacts
+x_tool/abgx360-src/.deps/
+x_tool/abgx360-src/Makefile
+x_tool/abgx360-src/abgx360
+x_tool/abgx360-src/abgx360-*.o
+x_tool/abgx360-src/config.h
+x_tool/abgx360-src/config.log
+x_tool/abgx360-src/config.status
+x_tool/abgx360-src/stamp-h1
+
+# Cargo.lock for non-library crates (generated during build)
+x_tool/god2iso-rs/Cargo.lock
+x_tool/iso2god-rs/Cargo.lock
+x_tool/god2iso-rs/target/
+x_tool/iso2god-rs/target/
+
 # OS
 .DS_Store
 Thumbs.db
