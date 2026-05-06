@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Rust build output
+target/
+
+# Compiled native tools
+x_tool/extract-xiso
+x_tool/iso2god
+x_tool/god2iso
+x_tool/abgx360
+
+# OS
+.DS_Store
+Thumbs.db
