@@ -39,7 +39,7 @@
 ## Setup
 
 ```bash
-git clone --recurse-submodules https://github.com/WB2024/Xbox360-Utility-Create-Extract.git
+git clone --recurse-submodules https://github.com/WB2024/X360Forge.git
 cd Xbox360-Utility-Create-Extract
 bash build.sh
 python3 main.pyw
